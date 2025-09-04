@@ -4,3 +4,5 @@ redis
 djangorestframework
 django-cors-headers
 drf-spectacular
+python-dotenv
+coverage
