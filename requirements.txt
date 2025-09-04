@@ -1,0 +1,6 @@
+django
+celery
+redis
+djangorestframework
+django-cors-headers
+drf-spectacular
