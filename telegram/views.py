@@ -16,7 +16,7 @@ class HabitListCreateView(generics.ListCreateAPIView):
 
 class HabitRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = HabitSerializer
-    permission_classes = [IsAuthenticated, IsOwner]
+    # permission_classes = [IsAuthenticated, IsOwner] # Временно закомментировано для отладки
 
     def get_queryset(self):
         return Habit.objects.filter(user=self.request.user)
