@@ -3,6 +3,13 @@ from .models import Habit
 from .serializers import HabitSerializer
 from .permissions import IsOwner
 from rest_framework.permissions import IsAuthenticated
+from django.shortcuts import render
+
+def home_page(request):
+    """
+    View for the home page.
+    """
+    return render(request, 'home.html')
 
 
 class HabitListCreateView(generics.ListCreateAPIView):

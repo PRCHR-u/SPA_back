@@ -3,9 +3,15 @@ from .views import (
     HabitListCreateView,
     HabitRetrieveUpdateDestroyView,
     PublicHabitListView,
+    home_page
 )
 
 urlpatterns = [
+    path(
+        '', 
+        home_page, 
+        name='home_page'
+    ),
     path(
         'my-habits/',
         HabitListCreateView.as_view(),
