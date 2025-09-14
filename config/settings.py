@@ -163,4 +163,15 @@ SPECTACULAR_SETTINGS = {
     'DESCRIPTION': 'API for tracking habits',
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
+    'COMPONENTS': {
+        'securitySchemes': {
+            'tokenAuth': {
+                'type': 'apiKey',
+                'in': 'header',
+                'name': 'Authorization',
+                'description': 'Аутентификация по токену. Введите \'Token\', а затем ваш токен. Пример: Token 9944b09199c62bcf9418ad846dd0e4bbdfc6ee4b'
+            }
+        }
+    },
+    'SECURITY': [{'tokenAuth': []}]
 }
