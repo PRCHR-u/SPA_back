@@ -19,9 +19,9 @@ load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.getenv('SECRET_KEY')
+SECRET_KEY = 'mkkgle!q+#3e$#ed6k31ppyj^28=&+b6pl@s5gi2q3bz)4qc$x'
 
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['127.0.0.1']
 
