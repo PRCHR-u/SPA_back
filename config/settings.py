@@ -36,7 +36,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'corsheaders',
     'drf_spectacular',
-    'telegram',
+    'telegrambot',
     'users.apps.UsersConfig'
 ]
 
@@ -137,7 +137,7 @@ CELERY_TIMEZONE = 'UTC'
 
 CELERY_BEAT_SCHEDULE = {
     'send-habit-reminders': {
-        'task': 'telegram.tasks.send_reminders',
+        'task': 'telegrambot.tasks.send_reminders',
         'schedule': crontab(minute='*/1'),
     },
 }

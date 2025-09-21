@@ -20,9 +20,14 @@ class User(AbstractUser):
     avatar = models.ImageField(upload_to='users/avatars/', verbose_name='Avatar', blank=True, null=True)
     country = models.CharField(max_length=100, verbose_name='Country', blank=True, null=True)
 
-    # REQUIRED_FIELDS are fields prompted for when creating a superuser.
-    # 'username' and 'password' are required by default.
-    # We are adding 'email' to this list.
+    telegram_chat_id = models.CharField(
+        max_length=50, 
+        verbose_name='Telegram Chat ID', 
+        blank=True, 
+        null=True,
+        help_text='ID чата в Telegram для отправки уведомлений'
+    )
+    
     REQUIRED_FIELDS = ['email']
 
     class Meta:
