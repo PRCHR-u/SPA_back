@@ -7,7 +7,7 @@ __pycache__/
 *.so
 
 .idea
-
+.idx
 # Distribution / packaging
 .Python
 build/
