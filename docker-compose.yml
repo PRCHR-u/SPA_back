@@ -26,6 +26,7 @@ services:
 
   web:
     build: .
+    image: ${DOCKERHUB_USERNAME}/${IMAGE_APP_NAME}:${TAG:-latest}
     command: /entrypoint.sh
     env_file: .env
     environment:
@@ -45,6 +46,7 @@ services:
 
   celery:
     build: .
+    image: ${DOCKERHUB_USERNAME}/${IMAGE_APP_NAME}:${TAG:-latest}
     command: ["celery", "-A", "config", "worker", "-l", "INFO"]
     env_file: .env
     environment:
@@ -62,6 +64,7 @@ services:
 
   beat:
     build: .
+    image: ${DOCKERHUB_USERNAME}/${IMAGE_APP_NAME}:${TAG:-latest}
     command: ["celery", "-A", "config", "beat", "-l", "INFO"]
     env_file: .env
     environment:
@@ -79,6 +82,7 @@ services:
 
   nginx:
     build: ./docker/nginx
+    image: ${DOCKERHUB_USERNAME}/${IMAGE_NGINX_NAME}:${TAG:-latest}
     depends_on:
       - web
     ports:
@@ -91,5 +95,3 @@ volumes:
   postgres_data:
   static_data:
   media_data:
-
-
