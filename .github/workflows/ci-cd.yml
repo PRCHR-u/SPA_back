@@ -38,7 +38,7 @@ jobs:
 
     - name: Build Docker image
       run: |
-        docker-compose build web
+        docker compose build web
 
   deploy:
     needs: build_and_test
@@ -73,5 +73,5 @@ jobs:
 
           git pull origin feature
           
-          docker-compose up -d --build
+          docker compose up -d --build
         EOF
