@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
   db:
     image: postgres:16-alpine
@@ -26,7 +24,7 @@ services:
 
   web:
     build: .
-    image: ${DOCKERHUB_USERNAME}/${IMAGE_APP_NAME}:${TAG:-latest}
+    image: spa-back-web # <-- ИЗМЕНЕНО
     command: /entrypoint.sh
     env_file: .env
     environment:
@@ -46,7 +44,7 @@ services:
 
   celery:
     build: .
-    image: ${DOCKERHUB_USERNAME}/${IMAGE_APP_NAME}:${TAG:-latest}
+    image: spa-back-celery # <-- ИЗМЕНЕНО
     command: ["celery", "-A", "config", "worker", "-l", "INFO"]
     env_file: .env
     environment:
@@ -64,7 +62,7 @@ services:
 
   beat:
     build: .
-    image: ${DOCKERHUB_USERNAME}/${IMAGE_APP_NAME}:${TAG:-latest}
+    image: spa-back-beat # <-- ИЗМЕНЕНО
     command: ["celery", "-A", "config", "beat", "-l", "INFO"]
     env_file: .env
     environment:
@@ -82,7 +80,7 @@ services:
 
   nginx:
     build: ./docker/nginx
-    image: ${DOCKERHUB_USERNAME}/${IMAGE_NGINX_NAME}:${TAG:-latest}
+    image: spa-back-nginx # <-- ИЗМЕНЕНО
     depends_on:
       - web
     ports:
