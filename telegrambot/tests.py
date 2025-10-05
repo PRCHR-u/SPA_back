@@ -1,19 +1,21 @@
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from .models import Habit
 import datetime
 
+# Получаем активную модель пользователя
+User = get_user_model()
 
 class HabitApiTestCase(APITestCase):
     def setUp(self):
         # Создаем двух пользователей
         self.user1 = User.objects.create_user(
-            username='user1', password='testpassword123'
+            username='user1', password='testpassword123', email='user1@example.com'
         )
         self.user2 = User.objects.create_user(
-            username='user2', password='testpassword123'
+            username='user2', password='testpassword123', email='user2@example.com'
         )
 
         # Аутентифицируем первого пользователя
