@@ -1,0 +1,96 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - feature
+  pull_request:
+    branches:
+      - feature
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: '3.12'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Lint with flake8
+      run: |
+        pip install flake8
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+    - name: Run Django Tests
+      run: |
+        python manage.py test
+
+    - name: Build Docker image
+      run: |
+        docker compose build web
+
+  deploy:
+    needs: build_and_test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/feature' && github.event_name == 'push'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up SSH
+      uses: webfactory/ssh-agent@v0.5.3
+      with:
+        ssh-private-key: ${{ secrets.SSH_KEY }}
+
+    - name: Add known hosts
+      run: ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+
+    - name: Deploy to server
+      run: |
+        ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+          # Check if deploy directory exists, if not, clone it
+          if [ ! -d "${{ secrets.DEPLOY_PATH }}" ]; then
+            echo "Deployment directory not found. Cloning repository..."
+            git clone https://github.com/PRCHR-u/SPA_back.git ${{ secrets.DEPLOY_PATH }}
+          fi
+
+          cd ${{ secrets.DEPLOY_PATH }}
+          git pull origin feature
+
+          # Check if Docker is installed, if not, install it using the script in the repo
+          if ! command -v docker &> /dev/null
+          then
+              echo "Docker not found, attempting installation..."
+              chmod +x get-docker.sh
+              sudo ./get-docker.sh
+              echo "Installing Docker Compose plugin..."
+              sudo apt-get update
+              sudo apt-get install -y docker-compose-plugin
+          fi
+
+          # Create .env file from secrets
+          echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" > .env
+          echo "DEBUG=False" >> .env
+          echo "POSTGRES_DB=${{ secrets.POSTGRES_DB }}" >> .env
+          echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" >> .env
+          echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> .env
+          echo "TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}" >> .env
+          echo "DB_HOST=db" >> .env
+          echo "DB_PORT=5432" >> .env
+
+          # Run docker compose with sudo
+          echo "Starting application with Docker Compose..."
+          sudo docker compose up -d --build
+        EOF

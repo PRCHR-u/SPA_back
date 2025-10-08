@@ -1,0 +1,95 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build: .
+    image: spa-back-web # <-- ИЗМЕНЕНО
+    command: /entrypoint.sh
+    env_file: .env
+    environment:
+      POSTGRES_HOST: db
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/1
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    volumes:
+      - static_data:/vol/static
+      - media_data:/vol/media
+    expose:
+      - "8000"
+
+  celery:
+    build: .
+    image: spa-back-celery # <-- ИЗМЕНЕНО
+    command: ["celery", "-A", "config", "worker", "-l", "INFO"]
+    env_file: .env
+    environment:
+      POSTGRES_HOST: db
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/1
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    volumes:
+      - static_data:/vol/static
+      - media_data:/vol/media
+
+  beat:
+    build: .
+    image: spa-back-beat # <-- ИЗМЕНЕНО
+    command: ["celery", "-A", "config", "beat", "-l", "INFO"]
+    env_file: .env
+    environment:
+      POSTGRES_HOST: db
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/1
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    volumes:
+      - static_data:/vol/static
+      - media_data:/vol/media
+
+  nginx:
+    build: ./docker/nginx
+    image: spa-back-nginx # <-- ИЗМЕНЕНО
+    depends_on:
+      - web
+    ports:
+      - "80:80"
+    volumes:
+      - static_data:/vol/static:ro
+      - media_data:/vol/media:ro
+
+volumes:
+  postgres_data:
+  static_data:
+  media_data:
